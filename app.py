@@ -28,7 +28,7 @@ def hello():
             vote = None
 
             if request.method == 'POST':
-                requests.post(metrics_host + '/click', data={'click': 1})
+                # requests.post(metrics_host + '/click', data={'click': 1})
                 vote = request.form['vote']
                 data = json.dumps({'voter_id': voter_id, 'vote': vote})
                 redis.rpush('votes', data)
