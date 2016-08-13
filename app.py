@@ -2,16 +2,14 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import make_response
+from flask import redirect
+from flask import url_for
 from utils import connect_to_redis
-from httplib2 import Http
-from urllib import urlencode
 import os
 import socket
 import random
 import json
-
-h = Http()
-
+import requests
 
 option_a = os.getenv('OPTION_A', "Batman")
 option_b = os.getenv('OPTION_B', "Superman")
@@ -19,6 +17,8 @@ hostname = socket.gethostname()
 app = Flask(__name__)
 
 metrics_url = os.environ.get('METRICS_URL')
+
+region = 'us'
 
 @app.route("/", methods=['POST', 'GET'])
 def hello():
@@ -31,11 +31,15 @@ def hello():
             vote = None
 
             if request.method == 'POST':
-                data = dict(origin='us')
-                resp, content = h.request(metrics_url + '/v1/clicks', 'Post', urlencode(data))
                 vote = request.form['vote']
                 data = json.dumps({'voter_id': voter_id, 'vote': vote})
                 redis.rpush('votes', data)
+                try:
+                    requests.post('http://' + metrics_url + '/v1/clicks', data={'origin': region})
+                except requests.exceptions.RequestException:
+                    print 'Metric POST request not possible. Did you set METRIC_URL correctly?'
+
+
 
             resp = make_response(render_template(
                 'index.html',
@@ -43,14 +47,28 @@ def hello():
                 option_b=option_b,
                 hostname=hostname,
                 vote=vote,
-                metrics_url=metrics_url,
-                resp=resp,
-                content=content
+                region=region
             ))
             resp.set_cookie('voter_id', voter_id)
             return resp
         except:
             redis = connect_to_redis(os.environ.get('REDIS_HOST'))
+
+
+@app.route("/regionswitch", methods=['POST'])
+def regionswitch():
+    global region
+
+    if region == 'us':
+        region = 'eu'
+    elif region == 'eu':
+        region = 'us'
+    else:
+        region = 'us'
+
+    print 'region switched to ' + region + '!'
+
+    return redirect('/')
 
 
 if __name__ == "__main__":
