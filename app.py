@@ -42,6 +42,8 @@ def hello():
                 option_b=option_b,
                 hostname=hostname,
                 vote=vote,
+                metrics_host=metrics_host,
+                metrics_port=metrics_port
             ))
             resp.set_cookie('voter_id', voter_id)
             return resp
