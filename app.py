@@ -47,7 +47,7 @@ def hello():
                 option_b=option_b,
                 hostname=hostname,
                 vote=vote,
-                region=region
+                region=region.upper()
             ))
             resp.set_cookie('voter_id', voter_id)
             return resp

@@ -14,7 +14,7 @@
 <div id="content-container">
     <div id="content-container-center">
         <form id="region" name='form' method="POST" action="/regionswitch">
-            <button type="submit" name="region">Region: {{region}} (click to switch)</button>
+            <button id="regionswitch" type="submit" name="region">Region: <b>{{region}}</b> (click to switch)</button>
         </form>
         <h3>{{option_a}} vs {{option_b}}!</h3>
         <form id="choice" name='form' method="POST" action="/">
