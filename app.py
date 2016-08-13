@@ -15,6 +15,9 @@ hostname = socket.gethostname()
 app = Flask(__name__)
 
 metrics_host = os.environ.get('METRICS_HOST')
+print metrics_host
+metrics_port = os.environ.get('METRICS_PORT')
+print metrics_port
 
 
 @app.route("/", methods=['POST', 'GET'])
