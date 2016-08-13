@@ -14,11 +14,7 @@ option_b = os.getenv('OPTION_B', "Superman")
 hostname = socket.gethostname()
 app = Flask(__name__)
 
-metrics_host = os.environ.get('METRICS_HOST')
-print metrics_host
-metrics_port = os.environ.get('METRICS_PORT')
-print metrics_port
-
+metrics_url = os.environ.get('METRICS_URL')
 
 @app.route("/", methods=['POST', 'GET'])
 def hello():
@@ -31,7 +27,7 @@ def hello():
             vote = None
 
             if request.method == 'POST':
-                # requests.post(metrics_host + '/click', data={'click': 1})
+                requests.post(metrics_url + '/click', data={'origin': 'us'})
                 vote = request.form['vote']
                 data = json.dumps({'voter_id': voter_id, 'vote': vote})
                 redis.rpush('votes', data)
@@ -42,8 +38,7 @@ def hello():
                 option_b=option_b,
                 hostname=hostname,
                 vote=vote,
-                metrics_host=metrics_host,
-                metrics_port=metrics_port
+                metrics_url=metrics_url
             ))
             resp.set_cookie('voter_id', voter_id)
             return resp
