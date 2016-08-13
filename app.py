@@ -3,11 +3,15 @@ from flask import render_template
 from flask import request
 from flask import make_response
 from utils import connect_to_redis
+from httplib2 import Http
+from urllib import urlencode
 import os
 import socket
 import random
 import json
-import requests
+
+h = Http()
+
 
 option_a = os.getenv('OPTION_A', "Batman")
 option_b = os.getenv('OPTION_B', "Superman")
@@ -27,7 +31,8 @@ def hello():
             vote = None
 
             if request.method == 'POST':
-                requests.post(metrics_url + '/click', data={'origin': 'us'})
+                data = dict(origin='us')
+                resp, content = h.request(metrics_url + '/v1/clicks', 'Post', urlencode(data))
                 vote = request.form['vote']
                 data = json.dumps({'voter_id': voter_id, 'vote': vote})
                 redis.rpush('votes', data)
@@ -38,7 +43,9 @@ def hello():
                 option_b=option_b,
                 hostname=hostname,
                 vote=vote,
-                metrics_url=metrics_url
+                metrics_url=metrics_url,
+                resp=resp,
+                content=content
             ))
             resp.set_cookie('voter_id', voter_id)
             return resp
