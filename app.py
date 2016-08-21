@@ -28,9 +28,12 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
+redis = connect_to_redis(os.environ.get('REDIS_HOST'))
+
+
 @app.route("/", methods=['POST', 'GET'])
 def hello():
-    redis = connect_to_redis(os.environ.get('REDIS_HOST'))
+    global redis, region
     while True:
         try:
             voter_id = request.cookies.get('voter_id')
@@ -45,6 +48,7 @@ def hello():
                 redis.rpush('votes', data)
                 try:
                     requests.post('http://' + metrics_url + '/v1/clicks', data={'origin': region})
+                    eprint('Sent click from ' + region)
                 except requests.exceptions.RequestException:
                     eprint('Metric POST request not possible. Did you set METRIC_URL correctly?')
 
@@ -59,7 +63,7 @@ def hello():
             resp.set_cookie('voter_id', voter_id)
             return resp
         except Exception as e:
-            print(traceback.format_exc())
+            eprint(traceback.format_exc())
             redis = connect_to_redis(os.environ.get('REDIS_HOST'))
 
 
@@ -74,7 +78,7 @@ def regionswitch():
     else:
         region = 'us'
 
-    print('region switched to ' + region + '!')
+    eprint('region switched to ' + region + '!')
 
     return redirect('/')
 

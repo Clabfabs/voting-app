@@ -16,8 +16,8 @@ def connect_to_redis(host):
         try:
             redis = Redis(host=host, db=0)
             redis.ping()
-            print("Connected to redis")
+            eprint("Connected to redis")
             return redis
         except ConnectionError:
-            print("Failed to connect to redis - retrying")
+            eprint("Failed to connect to redis - retrying")
             time.sleep(1)
