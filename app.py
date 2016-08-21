@@ -12,6 +12,7 @@ import socket
 import random
 import json
 import requests
+import traceback
 
 option_a = os.getenv('OPTION_A', "Batman")
 option_b = os.getenv('OPTION_B', "Superman")
@@ -29,6 +30,7 @@ def eprint(*args, **kwargs):
 
 @app.route("/", methods=['POST', 'GET'])
 def hello():
+    redis = connect_to_redis(os.environ.get('REDIS_HOST'))
     while True:
         try:
             voter_id = request.cookies.get('voter_id')
@@ -46,8 +48,6 @@ def hello():
                 except requests.exceptions.RequestException:
                     eprint('Metric POST request not possible. Did you set METRIC_URL correctly?')
 
-
-
             resp = make_response(render_template(
                 'index.html',
                 option_a=option_a,
@@ -58,7 +58,8 @@ def hello():
             ))
             resp.set_cookie('voter_id', voter_id)
             return resp
-        except:
+        except Exception as e:
+            print(traceback.format_exc())
             redis = connect_to_redis(os.environ.get('REDIS_HOST'))
 
 
