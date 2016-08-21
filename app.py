@@ -3,7 +3,6 @@ from flask import render_template
 from flask import request
 from flask import make_response
 from flask import redirect
-from flask import url_for
 from utils import connect_to_redis
 import os
 import socket
@@ -72,4 +71,4 @@ def regionswitch():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=80)
