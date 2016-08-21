@@ -1,9 +1,12 @@
+from __future__ import print_function
+
 from flask import Flask
 from flask import render_template
 from flask import request
 from flask import make_response
 from flask import redirect
 from utils import connect_to_redis
+import sys
 import os
 import socket
 import random
@@ -18,6 +21,11 @@ app = Flask(__name__)
 metrics_url = os.environ.get('METRICS_URL')
 
 region = 'us'
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 
 @app.route("/", methods=['POST', 'GET'])
 def hello():
@@ -36,7 +44,7 @@ def hello():
                 try:
                     requests.post('http://' + metrics_url + '/v1/clicks', data={'origin': region})
                 except requests.exceptions.RequestException:
-                    print 'Metric POST request not possible. Did you set METRIC_URL correctly?'
+                    eprint('Metric POST request not possible. Did you set METRIC_URL correctly?')
 
 
 
@@ -65,7 +73,7 @@ def regionswitch():
     else:
         region = 'us'
 
-    print 'region switched to ' + region + '!'
+    print('region switched to ' + region + '!')
 
     return redirect('/')
 
