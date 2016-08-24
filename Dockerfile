@@ -1,6 +1,8 @@
 # Using official python runtime base image
 FROM python:2.7
 
+RUN apt-get update && apt-get install stress
+
 # Set the application directory
 WORKDIR /app
 
